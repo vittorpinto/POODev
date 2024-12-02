@@ -384,6 +384,7 @@ for livro in biblioteca:
 # %% Generics
 class Caixa:
     def __init__(self):
+        
         self.itens = []
 
     def adicionar_item(self, item):
