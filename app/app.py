@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 
 # Configuração do Redis e RQ
 redis_conn = Redis()
-fila = Queue(connection=redis_conn)
+fila = Queue('fila', connection=redis_conn)
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads/'
@@ -69,6 +69,20 @@ def job_status(job_id):
 @app.route('/download/<path:filename>', methods=['GET'])
 def download_file(filename):
     return send_file(filename, as_attachment=True)
+
+# Rota para usuarios checarem
+@app.route('/user', methods=['GET'])
+def user_dashboard():
+    """
+    Página do usuário que mostra todos os relatórios já gerados e em andamento.
+    """
+    # Diretório onde os PDFs são salvos
+    pdf_directory = UPLOAD_FOLDER
+
+    # Lista todos os arquivos PDF presentes no diretório de uploads
+    pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
+
+    return render_template('user_dashboard.html', pdf_files=pdf_files)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)

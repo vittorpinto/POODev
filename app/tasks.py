@@ -1,6 +1,6 @@
 # tasks.py
 import os
-from models import Dataset, Usuario, FormatadorLinguagemNatural, GeradorRelatorioPDF  # Importa as classes de models.py
+from models import Dataset, Usuario, FormatadorLinguagemNatural, GeradorRelatorioPDF
 
 def gerar_relatorio_pdf(filepath, usuario_nome):
     try:

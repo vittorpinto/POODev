@@ -80,6 +80,19 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Gerador de Relatórios</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#meus-relatorios">Meus Relatórios</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -133,6 +146,32 @@
                 </div>
             </div>
         </div>
+
+        <!-- Seção de Meus Relatórios -->
+        <div class="row justify-content-center mt-5" id="meus-relatorios">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header text-white text-center">
+                        <h3>Meus Relatórios</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nome do Relatório</th>
+                                    <th scope="col">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table-body">
+                                <tr>
+                                    <td colspan="2" class="text-center">Carregando relatórios...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
@@ -162,6 +201,43 @@
                 })
                 .catch(error => console.error('Erro ao verificar status:', error));
         }
+        function loadReports() {
+            fetch('/get_reports')
+                .then(response => response.json())
+                .then(data => {
+                    const reportsTableBody = document.getElementById('reports-table-body');
+                    reportsTableBody.innerHTML = ''; // Limpa a tabela antes de atualizar
+                    
+                    if (data.reports.length === 0) {
+                        reportsTableBody.innerHTML = '<tr><td colspan="2" class="text-center">Nenhum relatório disponível ainda.</td></tr>';
+                    } else {
+                        data.reports.forEach(function(report) {
+                            const row = document.createElement('tr');
+                            
+                            const reportNameCell = document.createElement('td');
+                            reportNameCell.textContent = report;
+                            
+                            const actionCell = document.createElement('td');
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = `/download/${report}`;
+                            downloadLink.className = 'btn btn-success';
+                            downloadLink.textContent = 'Baixar';
+                            actionCell.appendChild(downloadLink);
+                            
+                            row.appendChild(reportNameCell);
+                            row.appendChild(actionCell);
+                            
+                            reportsTableBody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar relatórios:', error));
+        }
+    
+        // Carrega os relatórios quando a página for carregada
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReports();
+        });
     </script>
 </body>
 </html>
