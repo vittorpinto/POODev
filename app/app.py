@@ -84,5 +84,15 @@ def user_dashboard():
 
     return render_template('user_dashboard.html', pdf_files=pdf_files)
 
+@app.route('/get_reports', methods=['GET'])
+def get_reports():
+    """
+    Endpoint para retornar todos os relatórios gerados em formato JSON.
+    """
+    pdf_directory = UPLOAD_FOLDER
+    pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
+    return {"reports": pdf_files}
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
