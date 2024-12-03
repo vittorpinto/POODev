@@ -70,19 +70,19 @@ def job_status(job_id):
 def download_file(filename):
     return send_file(filename, as_attachment=True)
 
-# Rota para usuarios checarem
-@app.route('/user', methods=['GET'])
-def user_dashboard():
+@app.route('/get_reports', methods=['GET'])
+def get_reports():
     """
-    Página do usuário que mostra todos os relatórios já gerados e em andamento.
+    Endpoint que retorna uma lista de relatórios disponíveis.
     """
-    # Diretório onde os PDFs são salvos
-    pdf_directory = UPLOAD_FOLDER
+    pdf_directory = UPLOAD_FOLDER  
+    try:
+        
+        pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
+        return {"reports": pdf_files}, 200  
+    except Exception as e:
+        return {"error": str(e)}, 500
 
-    # Lista todos os arquivos PDF presentes no diretório de uploads
-    pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
-
-    return render_template('user_dashboard.html', pdf_files=pdf_files)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
