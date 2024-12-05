@@ -12,6 +12,8 @@ O sistema permite aos usuários carregar arquivos CSV, processar os dados e gera
 
 ## Visão Geral do Sistema
 
+![image](./diagrama.png)
+
 Este sistema foi projetado para facilitar a análise de dados CSV e transformar essas informações em relatórios fáceis de entender. Algumas características importantes do sistema incluem:
 
 ### Estrutura do projeto
