@@ -24,7 +24,6 @@ def upload_file():
         filename = secure_filename(file.filename)
         filepath = ReportService.save_file(file, filename)
 
-        # Enfileirar a tarefa de geração de relatório
         job_id = ReportService.enqueue_report(filepath, session['user_id'])
         return f"Tarefa enfileirada com sucesso! ID da Tarefa: {job_id}"
     return "Arquivo inválido!"
@@ -33,7 +32,6 @@ def upload_file():
 def check_status(job_id):
     status, result = ReportService.check_job_status(job_id)
     if status == "Concluído":
-        # Remover o prefixo 'uploads/' antes de gerar o link
         filename = result.split('/')[-1]
         return f"Relatório gerado com sucesso! <a href='/download/{filename}'>Clique aqui para baixar</a>"
     elif status == "Falhou":
@@ -45,13 +43,8 @@ def check_status(job_id):
 
 @report_blueprint.route('/download/<filename>', methods=['GET'])
 def download_file(filename):
-    """
-    Rota para baixar relatórios gerados.
-    """
-    # Caminho absoluto para o diretório de uploads
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
     try:
-        # Serve o arquivo do diretório absoluto
         return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
     except FileNotFoundError:
         abort(404, description="Arquivo não encontrado")

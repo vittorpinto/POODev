@@ -13,7 +13,6 @@ def login():
         if user:
             session['user_id'] = user.id
             session['username'] = user.username
-            # Use o nome correto do endpoint
             return redirect(url_for('report.index'))
         return "Login inválido"
     return render_template('login.html')
@@ -30,8 +29,5 @@ def register():
 
 @auth_blueprint.route('/logout', methods=['GET'])
 def logout():
-    """
-    Rota para encerrar a sessão do usuário.
-    """
-    session.clear()  # Limpa todos os dados da sessão
-    return redirect(url_for('auth.login'))  # Redireciona para a página de login
+    session.clear()  
+    return redirect(url_for('auth.login')) 
