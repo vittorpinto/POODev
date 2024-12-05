@@ -11,7 +11,7 @@ class ReportService:
     @staticmethod
     def enqueue_report(filepath, user_id):
         from app import fila 
-        job = fila.enqueue('app.tasks.generate_report', filepath, user_id)
+        job = fila.enqueue('app.tasks.generate_report.generate_report', filepath, user_id)
         return job.id
 
     @staticmethod
