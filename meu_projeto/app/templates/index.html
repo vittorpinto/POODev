@@ -90,7 +90,7 @@
                             <span class="navbar-text">Logado como: {{ session['username'] }}</span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/logout">Logout</a>
+                            <a class="nav-link" href="/auth/logout">Logout</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
@@ -166,6 +166,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Nome do Relatório</th>
+                                    <th scope="col">Criado por</th>
                                     <th scope="col">Ação</th>
                                 </tr>
                             </thead>
@@ -216,13 +217,16 @@
                     reportsTableBody.innerHTML = ''; // Limpa a tabela
         
                     if (data.reports.length === 0) {
-                        reportsTableBody.innerHTML = '<tr><td colspan="2" class="text-center">Nenhum relatório disponível ainda.</td></tr>';
+                        reportsTableBody.innerHTML = '<tr><td colspan="3" class="text-center">Nenhum relatório disponível ainda.</td></tr>';
                     } else {
                         data.reports.forEach(function(report) {
                             const row = document.createElement('tr');
         
                             const reportNameCell = document.createElement('td');
                             reportNameCell.textContent = report.filename;
+        
+                            const creatorCell = document.createElement('td');
+                            creatorCell.textContent = report.username;
         
                             const actionCell = document.createElement('td');
                             const downloadLink = document.createElement('a');
@@ -232,6 +236,7 @@
                             actionCell.appendChild(downloadLink);
         
                             row.appendChild(reportNameCell);
+                            row.appendChild(creatorCell);
                             row.appendChild(actionCell);
         
                             reportsTableBody.appendChild(row);
@@ -239,7 +244,7 @@
                     }
                 })
                 .catch(error => console.error('Erro ao carregar relatórios:', error));
-        }
+        }        
               
     
         // Carrega os relatórios quando a página for carregada
