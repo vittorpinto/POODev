@@ -1,7 +1,7 @@
 # POODev
 [Documentação Oficial](https://drive.google.com/file/d/198d8ALFhHtB472u4Z-LPIPnCh2mRa6u2/view?usp=sharing)
 
-Diretório da versão mais recente: **/project**
+
 
 **Matéria da UENF: Programação Orientada a Objetos e Desenvolvimento** 
 
@@ -13,6 +13,50 @@ O sistema permite aos usuários carregar arquivos CSV, processar os dados e gera
 ## Visão Geral do Sistema
 
 Este sistema foi projetado para facilitar a análise de dados CSV e transformar essas informações em relatórios fáceis de entender. Algumas características importantes do sistema incluem:
+
+### Estrutura do projeto
+```
+.
+├── README.md                   # Documentação do projeto
+├── app                         # Diretório principal da aplicação
+│   ├── __init__.py             # Inicialização do módulo principal
+│   ├── controllers             # Controladores de rotas
+│   │   ├── __init__.py
+│   │   ├── auth_controller.py  # Lida com autenticação
+│   │   ├── report_controller.py # Controla relatórios
+│   │   └── user_controller.py  # Gerencia usuários
+│   ├── models                  # Modelos da aplicação
+│   │   ├── __init__.py
+│   │   └── database.py         # Configuração do banco de dados
+│   ├── services                # Lógica de negócios e serviços auxiliares
+│   │   ├── __init__.py
+│   │   ├── file_service.py     # Lida com arquivos
+│   │   ├── report_service.py   # Gerencia relatórios
+│   │   └── user_service.py     # Gerencia usuários
+│   ├── static                  # Arquivos estáticos (CSS, JS, imagens)
+│   │   └── img.png
+│   ├── tasks                   # Tarefas assíncronas (RQ)
+│   │   ├── __init__.py
+│   │   └── generate_report.py  # Tarefa para geração de relatórios
+│   ├── templates               # Templates HTML (Jinja2)
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── profile.html
+│   │   └── register.html
+│   └── utils                   # Utilitários da aplicação
+│       ├── data_analyzer.py    # Análise de dados
+│       ├── insights_generator.py # Geração de insights
+│       └── pdf_generator.py    # Geração de PDFs
+├── charts                      # Diretório para gráficos gerados
+├── create.admin.py             # Script para criar administrador
+├── instance                    # Dados de instância (configuração local)
+│   └── site.db                 # Banco de dados SQLite
+├── requirements.txt            # Dependências do projeto
+├── run.py                      # Script principal para rodar o servidor
+└── uploads                     # Diretório de uploads e relatórios gerados
+    ├── data.csv
+    └── teste.csv
+```
 
 - **Upload de Arquivos CSV**: Os usuários podem enviar arquivos CSV para serem analisados.
 - **Geração de Relatórios em PDF**: Os dados são processados, gerando relatórios em formato PDF com gráficos e insights.
