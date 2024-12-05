@@ -1,6 +1,8 @@
 # POODev
 [Documentação Oficial](https://drive.google.com/file/d/198d8ALFhHtB472u4Z-LPIPnCh2mRa6u2/view?usp=sharing)
 
+Diretório da versão mais recente: **/project**
+
 **Matéria da UENF: Programação Orientada a Objetos e Desenvolvimento** 
 
 
@@ -51,6 +53,8 @@ Para executar este sistema, siga os passos abaixo:
     Utilize pip ou pipenv para instalar as dependências necessárias:
 
     ```sh
+    python -m venv venv
+    source venv/bin/activate
     pip install -r requirements.txt
 3. **Inicie o Redis Server**
 
