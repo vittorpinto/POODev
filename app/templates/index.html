@@ -85,16 +85,23 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#meus-relatorios">Meus Relatórios</a>
-                    </li>
+                    {% if session['user_id'] %}
+                        <li class="nav-item">
+                            <span class="navbar-text">Logado como: {{ session['username'] }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Login</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+    
 
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -206,33 +213,34 @@
                 .then(response => response.json())
                 .then(data => {
                     const reportsTableBody = document.getElementById('reports-table-body');
-                    reportsTableBody.innerHTML = ''; // Limpa a tabela antes de atualizar
-                    
+                    reportsTableBody.innerHTML = ''; // Limpa a tabela
+        
                     if (data.reports.length === 0) {
                         reportsTableBody.innerHTML = '<tr><td colspan="2" class="text-center">Nenhum relatório disponível ainda.</td></tr>';
                     } else {
                         data.reports.forEach(function(report) {
                             const row = document.createElement('tr');
-                            
+        
                             const reportNameCell = document.createElement('td');
-                            reportNameCell.textContent = report;
-                            
+                            reportNameCell.textContent = report.filename;
+        
                             const actionCell = document.createElement('td');
                             const downloadLink = document.createElement('a');
-                            downloadLink.href = `/download/${report}`;
+                            downloadLink.href = `/download/${report.filename}`;
                             downloadLink.className = 'btn btn-success';
                             downloadLink.textContent = 'Baixar';
                             actionCell.appendChild(downloadLink);
-                            
+        
                             row.appendChild(reportNameCell);
                             row.appendChild(actionCell);
-                            
+        
                             reportsTableBody.appendChild(row);
                         });
                     }
                 })
                 .catch(error => console.error('Erro ao carregar relatórios:', error));
         }
+              
     
         // Carrega os relatórios quando a página for carregada
         document.addEventListener('DOMContentLoaded', function() {

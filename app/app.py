@@ -1,26 +1,45 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, session, redirect, url_for
+from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
 import os
+from redis import Redis
+from rq import Queue
+from rq.job import Job
+
+from database import db, User, Report
 from models import Dataset, Usuario, FormatadorLinguagemNatural, GeradorRelatorioPDF, InsightsNegocio, AnalisadorDados
 from tasks import gerar_relatorio_pdf
-from rq import Queue
-from rq.job import Job  
-from redis import Redis
-from werkzeug.utils import secure_filename
+
+# Inicialização do Flask
+app = Flask(__name__)
+
+# Configuração do banco de dados
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'sua_chave_secreta'
+
+# Configuração de upload
+UPLOAD_FOLDER = 'uploads/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Configuração do Redis e RQ
 redis_conn = Redis()
 fila = Queue('fila', connection=redis_conn)
 
-app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads/'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Inicializar o SQLAlchemy com o app
+db.init_app(app)
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+# Criar tabelas no banco de dados (se necessário)
+with app.app_context():
+    db.create_all()
 
 # Página inicial com o formulário de upload
 @app.route('/')
 def index():
+    if 'user_id' in session:
+        print(f"Usuário logado: {session['username']} (ID: {session['user_id']})")
     return render_template('index.html')
 
 # Rota para processar o upload e gerar o relatório
@@ -39,7 +58,14 @@ def upload_file():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        job = fila.enqueue(gerar_relatorio_pdf, filepath, "Admin")
+        # Enfileirar tarefa com o user_id logado
+        job = fila.enqueue(
+            gerar_relatorio_pdf,
+            filepath,
+            session['username'],  # Nome do usuário
+            session['user_id'],   # ID do usuário logado
+            app.config['SQLALCHEMY_DATABASE_URI']
+        )
         
         return f"""
             <h3>Tarefa enfileirada com sucesso!</h3>
@@ -72,17 +98,56 @@ def download_file(filename):
 
 @app.route('/get_reports', methods=['GET'])
 def get_reports():
-    """
-    Endpoint que retorna uma lista de relatórios disponíveis.
-    """
-    pdf_directory = UPLOAD_FOLDER  
-    try:
-        
-        pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith('.pdf')]
-        return {"reports": pdf_files}, 200  
-    except Exception as e:
-        return {"error": str(e)}, 500
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
+    user_id = session['user_id']
+    reports = Report.query.filter_by(user_id=user_id).all()  # Relatórios do usuário logado
+
+    reports_list = [{"id": r.id, "filename": r.filename} for r in reports]
+    return {"reports": reports_list}, 200
+
+
+
+# Rota para registrar um usuário
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        # Converter o valor de 'is_admin' para booleano
+        is_admin = True if request.form.get('is_admin') == 'on' else False
+
+        # Criar o usuário
+        new_user = User(username=username, password=password, is_admin=is_admin)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+
+# Rota para login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['user_id'] = user.id
+            session['username'] = user.username  # Salva o nome do usuário na sessão
+            session['is_admin'] = user.is_admin
+            return redirect(url_for('index'))
+        else:
+            return "Login inválido"
+    return render_template('login.html')
+
+# Rota para logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
